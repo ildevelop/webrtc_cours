@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" type="text/css" href="index.css">
+</head>
+<body>
+    <div>Hello</div>
+    <video autoplay></video>
+    <script>
+        navigator.getUserMedia = navigator.getUserMedia || navigator.mozGetUserMedia || navigator.webkitGetUserMedia;
+        navigator.getUserMedia({ audio: false, video: {mandatory: {minWidth:300,maxWidth:600,minHeight:300,maxHeight:400}} }, gotStream, streamError);
+
+
+
+        function gotStream(stream) {
+            console.log("stream work");
+            document.querySelector('video').src = URL.createObjectURL(stream);
+            document.querySelector('video').className="video_filter";
+            document.querySelector('video').play();
+
+        }
+
+        function streamError(error) {
+            console.log("ERRR",error);
+        }
+    </script>
+</body>
+</html>
