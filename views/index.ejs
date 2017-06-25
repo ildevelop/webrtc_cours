@@ -6,25 +6,108 @@
     <link rel="stylesheet" type="text/css" href="index.css">
 </head>
 <body>
-    <div>Hello</div>
-    <video autoplay></video>
-    <script>
-        navigator.getUserMedia = navigator.getUserMedia || navigator.mozGetUserMedia || navigator.webkitGetUserMedia;
-        navigator.getUserMedia({ audio: false, video: {mandatory: {minWidth:300,maxWidth:600,minHeight:300,maxHeight:400}} }, gotStream, streamError);
-
-
-
-        function gotStream(stream) {
-            console.log("stream work");
-            document.querySelector('video').src = URL.createObjectURL(stream);
-            document.querySelector('video').className="video_filter";
-            document.querySelector('video').play();
-
-        }
-
-        function streamError(error) {
-            console.log("ERRR",error);
-        }
-    </script>
+<div>Hello</div>
+<div id="cameraSeceltor">
+    Video: <select id="camera"></select>
+</div>
+<p>
+    <button id="takeProfilePicture" type="button" autofocus="true">Create Profile Pct</button>
+</p>
+<video id="videoTag" autoplay></video>
+<canvas id="profilePicCanvas" style="display: none;"></canvas>
+<div>
+    <img src="" id="profilePictOutput">
+</div>
 </body>
+<script>
+
+    var videoArea = document.querySelector('video');
+
+    var videoSelect = document.querySelector('#camera');
+    var profilePicCanvas = document.querySelector("#profilePicCanvas");
+    var profilePictOutput = document.querySelector("#profilePictOutput");
+    var takePicButton = document.querySelector("#takeProfilePicture");
+    var videoTag = document.querySelector("#videoTag");
+    var videoSource = videoSelect.value;
+    var width = 240; // Desired profile picture
+    var height = 0; // Calculated later based on image ratio
+    var streaming = false; // Use determinate when video has loaded
+
+
+    takePicButton.addEventListener('click', (ev) => {
+        takeProfilePict();
+        ev.PreventDefault();
+    }, false)
+
+    videoTag.addEventListener('canplay', (ev) => {
+        if (!streaming) {
+            height = videoTag.videoHeight / (videoTag.videoWidth / width);
+            //Firefox have problem 'cant be read'
+            if (isNaN(height)) {
+                height = width / (4 / 3);
+            }
+            videoTag.setAttribute('width', width)
+            videoTag.setAttribute('height', height)
+            profilePicCanvas.setAttribute('width', width);
+            profilePicCanvas.setAttribute('height', height);
+            streaming = true;
+        }
+    }, false)
+
+    function takeProfilePict() {
+        var context = profilePicCanvas.getContext('2d');
+        if (width && height) {
+            profilePicCanvas.width = width;
+            profilePicCanvas.height = height;
+            context.drawImage(videoTag, 0, 0, width, height);
+            var data = profilePicCanvas.toDataURL('image/png');
+            profilePictOutput.setAttribute('src', data);
+        }
+    }
+    //   Func CHANGE CAMERA IF U HAVE MORE 1         MEDIA SREAM NOT FUNCTION ERROR
+    if (typeof MediaStreamTrack === 'undefined' || typeof MediaStreamTrack.getSources === 'undefined') {
+        document.querySelector('#cameraSeceltor').style.visibility = "hidden";
+    } else {
+        MediaStreamTrack.getSources(getCameras);
+    }
+    startStream();
+
+
+    videoSelect.onchange = startStream;
+    function getCameras(sourceInfos) {
+        for (var i = 0; i !== sourceInfos.length; ++i) {
+            var sourceInfo = sourceInfos[i];
+            var option = document.createElement('option');
+            option.value = sourceInfo.id;
+            if (sourceInfo.kind === 'video') {
+                option.text = sourceInfo.label || 'camera' + (videoSelect.length + 1);
+                videoSelect.appendChild(option);
+            }
+        }
+    }
+
+    function startStream() {
+        navigator.getUserMedia = navigator.getUserMedia || navigator.mozGetUserMedia || navigator.webkitGetUserMedia;
+        navigator.getUserMedia({
+            audio: false,
+            video: {
+                mandatory: {minWidth: 300, maxWidth: 300, minHeight: 300, maxHeight: 300},
+                optional: [{
+                    sourceID: videoSource
+                }]
+            }
+        }, gotStream, streamError);
+    }
+    function gotStream(stream) {
+        console.log("stream work");
+        document.querySelector('video').src = URL.createObjectURL(stream);
+        document.querySelector('video').className = "video_filter";
+        document.querySelector('video').play();
+
+    }
+
+    function streamError(error) {
+        console.log("ERRR", error);
+    }
+</script>
 </html>
