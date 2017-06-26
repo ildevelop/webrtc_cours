@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <title>Title</title>
     <link rel="stylesheet" type="text/css" href="index.css">
+    <link rel="shortcut icon" href="">
+
     <script src="socket.io/socket.io.js"></script>
 </head>
 <body>
@@ -31,15 +33,16 @@
 <script>
 
     //    VIDEO
-    var videoArea = document.querySelector('video');
-    var videoSelect = document.querySelector('#camera');
+//    var videoSelect = document.querySelector('#camera');
     var profilePicCanvas = document.querySelector("#profilePicCanvas");
     var profilePictOutput = document.querySelector("#profilePictOutput");
     var takePicButton = document.querySelector("#takeProfilePicture");
+
     var myVideoArea = document.querySelector("#myVideoTag");
     var theirVideoArea = document.querySelector("#theirVideoTag");
+
     var signalingArea = document.querySelector("#signalingArea");
-    var videoSource = videoSelect.value;
+//    var videoSource = videoSelect.value;
     var width = 240; // Desired profile picture
     var height = 0; // Calculated later based on image ratio
     var streaming = false; // Use determinate when video has loaded
@@ -133,7 +136,7 @@
     });
 
     io.on('signaling_message', (data) => {
-        console.log('Signal received' + data.type);
+        console.log('Signal received _ ' + data.type);
         displaySignalMessage('Signal received' + data.type);
         // Setup the RTC Peer Connection object
         if (!rtcPeerConn)
@@ -144,9 +147,16 @@
                 console.log("SDP", message);
                 rtcPeerConn.setRemoteDescription(new RTCSessionDescription(message.sdp),() => {
                     // if we received an offer , we need to answer
+                    console.log("rtcPeerConn.remoteDescription.type: ",rtcPeerConn.remoteDescription.type)
                     if(rtcPeerConn.remoteDescription.type == 'offer'){
                         rtcPeerConn.createAnswer(sendLocalDesc,logError);
+                    }else if (rtcPeerConn.remoteDescription.type == "answer") {
+                        console.log("ANSWER");
+                        rtcPeerConn.setRemoteDescription(rtcPeerConn.remoteDescription);
+                    } else {
+                        log("Unsupported SDP type. Your code may differ here.");
                     }
+
                 },logError);
             }
             else {
@@ -162,9 +172,9 @@
 
         //send any ice candidate to the other peer
         rtcPeerConn.onicecandidate = (evt) => {
-            console.log("-------------------");
-            console.log("EVT", JSON.stringify({'candidate': evt.candidate}));
-            console.log("-------------------");
+//            console.log("-------------------");
+//            console.log("EVT", JSON.stringify({'candidate': evt.candidate}));
+//            console.log("-------------------");
             if (evt.candidate)
                 io.emit('signal', {
                     "type": "ice candidate",
@@ -196,7 +206,7 @@
 
     }
 
-    function sendLocalDesc(desc) {
+    function  sendLocalDesc(desc) {
         rtcPeerConn.setLocalDescription(desc, () => {
             displaySignalMessage("sending local description");
             io.emit('signal', {
@@ -213,7 +223,7 @@
         signalingArea.innerHTML = signalingArea.innerHTML + "<br>" + message;
     }
 
-    videoSelect.onchange = startStream;
+//    videoSelect.onchange = startStream;
     function getCameras(sourceInfos) {
         for (var i = 0; i !== sourceInfos.length; ++i) {
             var sourceInfo = sourceInfos[i];
@@ -226,18 +236,18 @@
         }
     }
 
-    function startStream() {
-        navigator.getUserMedia = navigator.getUserMedia || navigator.mozGetUserMedia || navigator.webkitGetUserMedia;
-        navigator.getUserMedia({
-            audio: false,
-            video: {
-                mandatory: {minWidth: 300, maxWidth: 300, minHeight: 300, maxHeight: 300},
-                optional: [{
-                    sourceID: videoSource
-                }]
-            }
-        }, gotStream, streamError);
-    }
+//    function startStream() {
+//        navigator.getUserMedia = navigator.getUserMedia || navigator.mozGetUserMedia || navigator.webkitGetUserMedia;
+//        navigator.getUserMedia({
+//            audio: false,
+//            video: {
+//                mandatory: {minWidth: 300, maxWidth: 300, minHeight: 300, maxHeight: 300},
+//                optional: [{
+//                    sourceID: videoSource
+//                }]
+//            }
+//        }, gotStream, streamError);
+//    }
     function gotStream(stream) {
         console.log("stream work");
         document.querySelector('video').src = URL.createObjectURL(stream);
