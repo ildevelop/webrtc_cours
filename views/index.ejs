@@ -33,7 +33,7 @@
 <script>
 
     //    VIDEO
-//    var videoSelect = document.querySelector('#camera');
+    //    var videoSelect = document.querySelector('#camera');
     var profilePicCanvas = document.querySelector("#profilePicCanvas");
     var profilePictOutput = document.querySelector("#profilePictOutput");
     var takePicButton = document.querySelector("#takeProfilePicture");
@@ -42,7 +42,7 @@
     var theirVideoArea = document.querySelector("#theirVideoTag");
 
     var signalingArea = document.querySelector("#signalingArea");
-//    var videoSource = videoSelect.value;
+    //    var videoSource = videoSelect.value;
     var width = 240; // Desired profile picture
     var height = 0; // Calculated later based on image ratio
     var streaming = false; // Use determinate when video has loaded
@@ -63,6 +63,11 @@
     };
     var rtcPeerConn;
 
+//    var dataChannelOptions = {
+//        ordered: false,// no guaranteed delivery, unreliable but faster
+//        maxRetransmiTime: 1000,
+//    };
+//    var dataChannel;
 
     takePicButton.addEventListener('click', (ev) => {
         takeProfilePict();
@@ -123,6 +128,7 @@
             "message": myMessage.value,
             "room": ROOM
         });
+//        dataChannel.send(myName.value + " : " + myMessage.value);
         ev.preventDefault();
     }, false)
 
@@ -141,23 +147,23 @@
         // Setup the RTC Peer Connection object
         if (!rtcPeerConn)
             startSignaling();
-        if (data.type != "user_here"){
+        if (data.type != "user_here") {
             var message = JSON.parse(data.message);
-            if (message.sdp){
+            if (message.sdp) {
                 console.log("SDP", message);
-                rtcPeerConn.setRemoteDescription(new RTCSessionDescription(message.sdp),() => {
+                rtcPeerConn.setRemoteDescription(new RTCSessionDescription(message.sdp), () => {
                     // if we received an offer , we need to answer
-                    console.log("rtcPeerConn.remoteDescription.type: ",rtcPeerConn.remoteDescription.type)
-                    if(rtcPeerConn.remoteDescription.type == 'offer'){
-                        rtcPeerConn.createAnswer(sendLocalDesc,logError);
-                    }else if (rtcPeerConn.remoteDescription.type == "answer") {
+                    console.log("rtcPeerConn.remoteDescription.type: ", rtcPeerConn.remoteDescription.type)
+                    if (rtcPeerConn.remoteDescription.type == 'offer') {
+                        rtcPeerConn.createAnswer(sendLocalDesc, logError);
+                    } else if (rtcPeerConn.remoteDescription.type == "answer") {
                         console.log("ANSWER");
 //                        rtcPeerConn.setRemoteDescription(rtcPeerConn.remoteDescription);
                     } else {
                         log("Unsupported SDP type. Your code may differ here.");
                     }
 
-                },logError);
+                }, logError);
             }
             else {
                 rtcPeerConn.addIceCandidate(new RTCIceCandidate(message.candidate));
@@ -169,6 +175,12 @@
         displaySignalMessage("starting signaling ...");
 
         rtcPeerConn = new webkitRTCPeerConnection(configuration);
+
+//        //OPEN CHANNEL
+//        dataChannel = rtcPeerConn.createDataChannel('textMessages', dataChannelOptions);
+//        dataChannel.onopen = dataChannelStateChanged;
+//        rtcPeerConn.ondatachannel = receiveDateChannel;
+
 
         //send any ice candidate to the other peer
         rtcPeerConn.onicecandidate = (evt) => {
@@ -197,7 +209,14 @@
         navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
         navigator.getUserMedia({
             "audio": false,
-            "video": true
+            "video": {
+                mandatory: {
+                    minWidth: 240,
+                    maxWidth: 240,
+                    minHeight: 240,
+                    maxHeight: 240
+                }
+            }
         }, function (stream) {
             displaySignalMessage("going display MY stream...");
             myVideoArea.src = URL.createObjectURL(stream);
@@ -206,7 +225,24 @@
 
     }
 
-    function  sendLocalDesc(desc) {
+//    function dataChannelStateChanged() {
+//        //webrtc channel
+//        if (dataChannel.readyState === 'open') {
+//            displaySignalMessage("Data Channel open");
+//            dataChannel.onmessage = receiveDataChannelMessage;
+//        }
+//    }
+//    function receiveDateChannel(event) {
+//        //webrtc channel
+//        displaySignalMessage("Receiving a data Channel");
+//        dataChannel = event.channel;
+//        dataChannel.onmessage = receiveDataChannelMessage;
+//    }
+//    function receiveDataChannelMessage(event) {
+//        displaySignalMessage("Incoming Message");
+//        displayMessage("From DataChannel: " + event.data);
+//    }
+    function sendLocalDesc(desc) {
         rtcPeerConn.setLocalDescription(desc, () => {
             displaySignalMessage("sending local description");
             io.emit('signal', {
@@ -223,7 +259,7 @@
         signalingArea.innerHTML = signalingArea.innerHTML + "<br>" + message;
     }
 
-//    videoSelect.onchange = startStream;
+    //    videoSelect.onchange = startStream;
     function getCameras(sourceInfos) {
         for (var i = 0; i !== sourceInfos.length; ++i) {
             var sourceInfo = sourceInfos[i];
@@ -236,18 +272,18 @@
         }
     }
 
-//    function startStream() {
-//        navigator.getUserMedia = navigator.getUserMedia || navigator.mozGetUserMedia || navigator.webkitGetUserMedia;
-//        navigator.getUserMedia({
-//            audio: false,
-//            video: {
-//                mandatory: {minWidth: 300, maxWidth: 300, minHeight: 300, maxHeight: 300},
-//                optional: [{
-//                    sourceID: videoSource
-//                }]
-//            }
-//        }, gotStream, streamError);
-//    }
+    //    function startStream() {
+    //        navigator.getUserMedia = navigator.getUserMedia || navigator.mozGetUserMedia || navigator.webkitGetUserMedia;
+    //        navigator.getUserMedia({
+    //            audio: false,
+    //            video: {
+    //                mandatory: {minWidth: 300, maxWidth: 300, minHeight: 300, maxHeight: 300},
+    //                optional: [{
+    //                    sourceID: videoSource
+    //                }]
+    //            }
+    //        }, gotStream, streamError);
+    //    }
     function gotStream(stream) {
         console.log("stream work");
         document.querySelector('video').src = URL.createObjectURL(stream);
