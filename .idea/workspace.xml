@@ -278,7 +278,7 @@
       <workItem from="1498389198221" duration="8000" />
       <workItem from="1498389213871" duration="34685000" />
       <workItem from="1498491352458" duration="3361000" />
-      <workItem from="1498551464857" duration="147000" />
+      <workItem from="1498551464857" duration="436000" />
     </task>
     <task id="LOCAL-00001" summary="Take Profile Picture">
       <created>1498384784910</created>
@@ -312,7 +312,7 @@
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="46065000" />
+    <option name="totallyTimeSpent" value="46354000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />

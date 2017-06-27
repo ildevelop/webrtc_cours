@@ -1,18 +1,29 @@
 {
-  "name": "webrtc_cours",
+  "name": "incuber-webrtc",
   "version": "1.0.0",
-  "description": "",
+  "description": "Webrtc p2p ",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js"
   },
   "keywords": [],
-  "author": "",
+  "author": "ildevelop",
   "license": "ISC",
   "dependencies": {
     "ejs": "^2.5.6",
     "express": "^4.15.3",
     "express.io": "^1.1.13"
-  }
+  },
+  "devDependencies": {
+    "coffee-script": "^1.12.6"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ildevelop/webrtc_cours.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ildevelop/webrtc_cours/issues"
+  },
+  "homepage": "https://github.com/ildevelop/webrtc_cours#readme"
 }
