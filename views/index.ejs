@@ -141,7 +141,7 @@
         // Setup the RTC Peer Connection object
         if (!rtcPeerConn)
             startSignaling();
-        if (data.type!= "user_here"){
+        if (data.type != "user_here"){
             var message = JSON.parse(data.message);
             if (message.sdp){
                 console.log("SDP", message);
@@ -152,7 +152,7 @@
                         rtcPeerConn.createAnswer(sendLocalDesc,logError);
                     }else if (rtcPeerConn.remoteDescription.type == "answer") {
                         console.log("ANSWER");
-                        rtcPeerConn.setRemoteDescription(rtcPeerConn.remoteDescription);
+//                        rtcPeerConn.setRemoteDescription(rtcPeerConn.remoteDescription);
                     } else {
                         log("Unsupported SDP type. Your code may differ here.");
                     }
