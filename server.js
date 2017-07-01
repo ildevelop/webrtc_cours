@@ -1,6 +1,13 @@
+fs = require('fs')
+options = {
+    key: fs.readFileSync('./key'),
+    cert: fs.readFileSync('./cert')
+}
+
 var express = require('express.io');
 var app = express();
-app.http().io();
+// app.http().io();
+app.https(options).io()
 var PORT = 3000;
 console.log('server started on port:' , PORT);
 
